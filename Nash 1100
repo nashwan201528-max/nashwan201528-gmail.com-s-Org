@@ -1,0 +1,22 @@
+### Android Build Artifact Locations
+
+```
+app / build / outputs / apk / debug / app-debug.apk
+app / build / outputs / apk / release / app-release.apk
+```
+
+#### Directory Hierarchy
+```text
+app/
+├── build/
+│   └── outputs/
+│       └── apk/
+│           ├── debug/
+│           │   └── app-debug.apk
+│           └── release/
+│               └── app-release.apk
+```
+
+**Package**: `com.example.scicalc`
+**Debug Artifact**: `app/build/outputs/apk/debug/app-debug.apk`
+**Release Artifact**: `app/build/outputs/apk/release/app-release.apk`
