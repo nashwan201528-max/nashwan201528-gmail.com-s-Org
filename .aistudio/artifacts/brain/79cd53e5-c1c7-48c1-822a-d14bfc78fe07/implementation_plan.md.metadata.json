@@ -1,0 +1,6 @@
+{
+  "summary":  "Implementation plan to configure the Android APK visualizer with 'release' as the default active build variant while maintaining both stacked debug and release paths in the text box. Outlines state defaults, visual focus indicators, and workflow synchronization across tree, pipeline, terminal simulator, and inspector modals.",
+  "updatedAt":  "2026-10-11T21:31:27.274752239Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}

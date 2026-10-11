@@ -1,0 +1,8 @@
+{
+  "name": "Remix Remix Remix Remix Android APK Directory Tree Visualizer",
+  "description": "A clean, professional visualization of the Android project directory structure highlighting the generated app-debug.apk and app-release.apk build artifacts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

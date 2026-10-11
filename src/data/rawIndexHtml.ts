@@ -1,0 +1,472 @@
+export const RAW_INDEX_HTML = `<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>آلة حاسبة علمية — وضع داكن + لوحة مفاتيح + تحقق</title>
+  <style>
+    :root{
+      --bg: #f3f4f6;
+      --panel: #ffffff;
+      --text: #0f172a;
+      --muted: #6b7280;
+      --btn: #e5e7eb;
+      --accent: #06b6d4;
+      --operator: #f59e0b;
+      --equal: #10b981;
+      --danger: #ef4444;
+      --glass: rgba(255,255,255,0.06);
+    }
+    .dark{
+      --bg: #0b1220;
+      --panel: #0f1724;
+      --text: #e6eef8;
+      --muted: #9aa8bf;
+      --btn: #111827;
+      --accent: #06b6d4;
+      --operator: #f59e0b;
+      --equal: #10b981;
+      --danger: #ef4444;
+      --glass: rgba(255,255,255,0.03);
+    }
+
+    *{box-sizing:border-box;font-family:Inter, "Segoe UI", Roboto, system-ui, Arial;}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(135deg,var(--bg),#dbeafe55);
+      color:var(--text);
+      padding:12px;
+    }
+
+    .calc {
+      width: 420px;
+      max-width: 98vw;
+      background: linear-gradient(180deg, var(--panel), rgba(255,255,255,0.02));
+      border-radius:14px;
+      box-shadow: 0 8px 30px rgba(2,6,23,0.35);
+      padding:14px;
+    }
+
+    .top-row{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      margin-bottom:10px;
+    }
+    .title{
+      font-weight:600;
+      font-size:1.05rem;
+      flex:1;
+    }
+    .toggle{
+      background:var(--btn);
+      border-radius:8px;
+      padding:6px 10px;
+      cursor:pointer;
+      border:none;
+      color:var(--text);
+      font-size:0.8rem;
+    }
+
+    .display {
+      width:100%;
+      height:65px;
+      border-radius:10px;
+      padding:10px;
+      font-size:1.25rem;
+      background:var(--glass);
+      border:1px solid rgba(255,255,255,0.08);
+      color:var(--text);
+      outline:none;
+      text-align:right;
+      direction:ltr;
+      margin-bottom:8px;
+    }
+
+    .secondary {
+      font-size:0.85rem;
+      color:var(--muted);
+      margin-bottom:8px;
+      text-align:right;
+    }
+
+    .buttons {
+      display:grid;
+      grid-template-columns:repeat(6,1fr);
+      gap:6px;
+    }
+
+    button.key{
+      border: none;
+      border-radius:8px;
+      height:40px;
+      background:var(--btn);
+      color:var(--text);
+      font-size:0.9rem;
+      font-weight:600;
+      cursor:pointer;
+      transition:transform .06s ease;
+    }
+    button.key:active{transform:scale(.97);}
+
+    .op{ background:var(--operator) !important; color:#fff !important; }
+    .eq{ background:var(--equal) !important; color:#fff !important; grid-column:span 2; }
+    .clr{ background:var(--danger) !important; color:#fff !important; }
+    .wide{ grid-column:span 2; }
+
+    @media (max-width:420px){
+      .display{height:55px;font-size:1.1rem}
+      .calc{padding:8px}
+      button.key{height:36px;font-size:0.85rem}
+    }
+  </style>
+</head>
+<body class="dark">
+  <div class="calc" role="application" aria-label="آلة حاسبة علمية">
+    <div class="top-row">
+      <div class="title">آلة حاسبة علمية</div>
+      <button id="modeToggle" class="toggle" title="تبديل الوضع">فاتح / داكن</button>
+    </div>
+
+    <input id="display" class="display" aria-live="polite" value="0" readonly />
+    <div id="status" class="secondary">جاهز — اكتب أو اضغط الأزرار</div>
+
+    <div class="buttons" id="buttons">
+      <!-- scientific row -->
+      <button class="key" data-val="(">(</button>
+      <button class="key" data-val=")">)</button>
+      <button class="key" data-fn="sqrt">√</button>
+      <button class="key" data-fn="^">^</button>
+      <button class="key" data-fn="!">!</button>
+      <button class="key clr" id="allClear">AC</button>
+
+      <button class="key" data-fn="sin">sin</button>
+      <button class="key" data-fn="cos">cos</button>
+      <button class="key" data-fn="tan">tan</button>
+      <button class="key" data-fn="asin">asin</button>
+      <button class="key" data-fn="acos">acos</button>
+      <button class="key" data-fn="atan">atan</button>
+
+      <button class="key" data-fn="ln">ln</button>
+      <button class="key" data-fn="log">log</button>
+      <button class="key" data-fn="exp">exp</button>
+      <button class="key" data-fn="abs">abs</button>
+      <button class="key" data-val="pi">π</button>
+      <button class="key" data-val="e">e</button>
+
+      <!-- numeric + basic ops -->
+      <button class="key" data-val="7">7</button>
+      <button class="key" data-val="8">8</button>
+      <button class="key" data-val="9">9</button>
+      <button class="key op" data-val="/">÷</button>
+      <button class="key" data-val="%" title="نسبة">%</button>
+      <button class="key" id="del">DEL</button>
+
+      <button class="key" data-val="4">4</button>
+      <button class="key" data-val="5">5</button>
+      <button class="key" data-val="6">6</button>
+      <button class="key op" data-val="*">×</button>
+      <button class="key" data-fn="pow2">x²</button>
+      <button class="key" data-fn="pow3">x³</button>
+
+      <button class="key" data-val="1">1</button>
+      <button class="key" data-val="2">2</button>
+      <button class="key" data-val="3">3</button>
+      <button class="key op" data-val="-">−</button>
+      <button class="key" data-fn="inv">1/x</button>
+      <button class="key" data-fn="sqrt3">∛</button>
+
+      <button class="key wide" data-val="0">0</button>
+      <button class="key" data-val=".">.</button>
+      <button class="key op" data-val="+">+</button>
+      <button class="key eq" id="equals">=</button>
+    </div>
+  </div>
+
+  <script>
+    const funcs = {
+      sin: x=>Math.sin(x),
+      cos: x=>Math.cos(x),
+      tan: x=>Math.tan(x),
+      asin: x=>Math.asin(x),
+      acos: x=>Math.acos(x),
+      atan: x=>Math.atan(x),
+      sqrt: x=>Math.sqrt(x),
+      ln: x=>Math.log(x),
+      log: x=>Math.log10 ? Math.log10(x) : Math.log(x)/Math.LN10,
+      exp: x=>Math.exp(x),
+      abs: x=>Math.abs(x),
+      pow2: x=>Math.pow(x,2),
+      pow3: x=>Math.pow(x,3),
+      inv: x=>1/x,
+      sqrt3: x=>Math.cbrt ? Math.cbrt(x) : Math.pow(x,1/3)
+    };
+
+    const constants = { pi: Math.PI, e: Math.E };
+
+    const opInfo = {
+      '+': {prec:2, assoc:'L', args:2, fn:(a,b)=>a+b},
+      '-': {prec:2, assoc:'L', args:2, fn:(a,b)=>a-b},
+      '*': {prec:3, assoc:'L', args:2, fn:(a,b)=>a*b},
+      '/': {prec:3, assoc:'L', args:2, fn:(a,b)=>a/b},
+      '%': {prec:3, assoc:'L', args:2, fn:(a,b)=>a%b},
+      '^': {prec:4, assoc:'R', args:2, fn:(a,b)=>Math.pow(a,b)},
+      'u-': {prec:5, assoc:'R', args:1, fn:(a)=>-a},
+      '!': {prec:6, assoc:'L', args:1, fn:(a)=>factorial(a)}
+    };
+
+    function factorial(n){
+      if(!Number.isFinite(n)) throw new Error('قيمة عامل غير صحيحة');
+      if(n<0) throw new Error('غير معرف للعدد السالب');
+      if(Math.floor(n)!==n) throw new Error('عامل يفرض عددًا صحيحًا');
+      if(n>170) throw new Error('قيمة كبيرة جدًا');
+      let r=1;
+      for(let i=2;i<=n;i++) r*=i;
+      return r;
+    }
+
+    function tokenize(expr){
+      expr = expr.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/π/g,'pi');
+      expr = expr.replace(/\\s+/g,'');
+      const tokens = [];
+      const re = /([0-9]*\\.?[0-9]+(?:e[+-]?\\d+)?|\\b(?:pi|e)\\b|[A-Za-z_][A-Za-z0-9_]*|[\\+\\-\\*/\\^\\!\\%\\(\\),])/g;
+      let m;
+      let lastIndex = 0;
+      while((m = re.exec(expr)) !== null){
+        if(m.index !== lastIndex){
+          throw new Error('رمز غير صالح عند الموضع ' + lastIndex);
+        }
+        const tok = m[0];
+        tokens.push(tok);
+        lastIndex = re.lastIndex;
+      }
+      if(lastIndex !== expr.length){
+        throw new Error('رمز غير صالح في نهاية التعبير');
+      }
+
+      const out = [];
+      const isValue = t => /^[0-9.]/.test(t) || t==='pi' || t==='e' || /^[A-Za-z_]/.test(t) || t===')';
+      for(let i=0;i<tokens.length;i++){
+        const t = tokens[i];
+        if(i>0){
+          const prev = tokens[i-1];
+          if( (isValue(prev) || prev===')') && (t==='(' || /^[A-Za-z_]/.test(t) || t==='pi' || t==='e' || /^[0-9.]/.test(t)) ){
+            out.push('*');
+          }
+        }
+        out.push(t);
+      }
+
+      return out;
+    }
+
+    function toRPN(tokens){
+      const output = [];
+      const ops = [];
+      let prevType = 'start';
+
+      const isNumber = t => /^[0-9]*\\.?[0-9]+(?:e[+-]?\\d+)?$/.test(t);
+      const isFunc = t => /^[A-Za-z_][A-Za-z0-9_]*$/.test(t) && !(t in constants);
+
+      for(let i=0;i<tokens.length;i++){
+        const token = tokens[i];
+        if(isNumber(token) || token in constants){
+          output.push(token);
+          prevType='value';
+        } else if(isFunc(token)){
+          ops.push(token);
+          prevType='func';
+        } else if(token === ','){
+          while(ops.length && ops[ops.length-1] !== '(') output.push(ops.pop());
+          if(!ops.length) throw new Error('فاصل معلمات في موضع غير مناسب');
+          prevType='sep';
+        } else if(token in opInfo){
+          let op = token;
+          if(op === '-' && (prevType==='start' || prevType==='op' || prevType==='(' || prevType==='sep' || prevType==='func')) {
+            op = 'u-';
+          }
+          while(ops.length){
+            const top = ops[ops.length-1];
+            if(top in opInfo){
+              const a = opInfo[op], b = opInfo[top];
+              if( (a.assoc==='L' && a.prec<=b.prec) || (a.assoc==='R' && a.prec<b.prec) ){
+                output.push(ops.pop());
+                continue;
+              }
+            }
+            break;
+          }
+          ops.push(op);
+          prevType='op';
+        } else if(token === '('){
+          ops.push(token);
+          prevType='(';
+        } else if(token === ')'){
+          while(ops.length && ops[ops.length-1] !== '(') output.push(ops.pop());
+          if(!ops.length) throw new Error('قوس مغلق بدون فتح');
+          ops.pop();
+          if(ops.length && isFunc(ops[ops.length-1])) output.push(ops.pop());
+          prevType='value';
+        } else{
+          throw new Error('رمز غير معروف: ' + token);
+        }
+      }
+
+      while(ops.length){
+        const t = ops.pop();
+        if(t==='(' || t===')') throw new Error('قوس مفتوح بدون إغلاق');
+        output.push(t);
+      }
+      return output;
+    }
+
+    function evalRPN(rpn){
+      const stack = [];
+      for(const tok of rpn){
+        if(/^[0-9]/.test(tok) || /^[0-9.]/.test(tok) || /^[0-9].*e/.test(tok) ){
+          stack.push(parseFloat(tok));
+        } else if(tok in constants){
+          stack.push(constants[tok]);
+        } else if(tok in opInfo){
+          const info = opInfo[tok];
+          if(stack.length < info.args) throw new Error('عدد معطيات غير كافٍ');
+          if(info.args === 1){
+            const a = stack.pop();
+            const res = info.fn(a);
+            if(!Number.isFinite(res)) throw new Error('نتيجة غير صالحة');
+            stack.push(res);
+          } else if(info.args === 2){
+            const b = stack.pop(), a = stack.pop();
+            if(tok === '/' && b===0) throw new Error('قسمة على صفر');
+            if(tok === '%' && b===0) throw new Error('قسمة على صفر');
+            const res = info.fn(a,b);
+            if(!Number.isFinite(res)) throw new Error('نتيجة غير صالحة');
+            stack.push(res);
+          }
+        } else if(tok in funcs){
+          const fn = funcs[tok];
+          if(stack.length<1) throw new Error('معامل ناقص');
+          const a = stack.pop();
+          const res = fn(a);
+          if(!Number.isFinite(res)) throw new Error('نتيجة غير صالحة');
+          stack.push(res);
+        } else {
+          throw new Error('رمز غير متوقع: ' + tok);
+        }
+      }
+      if(stack.length!==1) throw new Error('تعبير غير مكتمل');
+      return stack[0];
+    }
+
+    function evaluateExpression(expr){
+      if(!expr || expr.trim()==='') throw new Error('لا يوجد تعبير');
+      const tokens = tokenize(expr);
+      const rpn = toRPN(tokens);
+      const res = evalRPN(rpn);
+      return res;
+    }
+
+    const display = document.getElementById('display');
+    const status = document.getElementById('status');
+    let expr = '';
+
+    function updateDisplay(){
+      display.value = expr || '0';
+    }
+
+    function setStatus(msg, isError=false){
+      status.textContent = msg;
+      status.style.color = isError ? 'var(--danger)' : '';
+    }
+
+    function append(str){
+      if(str in funcs){
+        expr += str + '(';
+      } else if(str === 'pi' || str === 'e'){
+        expr += str;
+      } else if(str === '%' ){
+        expr += '%';
+      } else if(str === '^' ){
+        expr += '^';
+      } else if(str === '!' ){
+        expr += '!';
+      } else {
+        expr += str;
+      }
+      updateDisplay();
+      setStatus('...');
+    }
+
+    function clearAll(){
+      expr = '';
+      updateDisplay();
+      setStatus('مسح');
+    }
+    function delLast(){
+      if(expr.length>0) expr = expr.slice(0,-1);
+      updateDisplay();
+    }
+
+    function calculate(){
+      try{
+        const result = evaluateExpression(expr);
+        const rounded = Math.abs(result) < 1e-12 ? 0 : Math.round((result + Number.EPSILON) * 1e12)/1e12;
+        expr = String(rounded);
+        updateDisplay();
+        setStatus('تم الحساب بنجاح');
+      }catch(e){
+        setStatus('خطأ: ' + e.message, true);
+        display.value = 'Error';
+        expr = '';
+      }
+    }
+
+    document.getElementById('buttons').addEventListener('click', (ev)=>{
+      const b = ev.target.closest('button');
+      if(!b) return;
+      const v = b.dataset.val;
+      const f = b.dataset.fn;
+      if(b.id === 'allClear' || b.classList.contains('clr')){ clearAll(); return; }
+      if(b.id === 'del'){ delLast(); return; }
+      if(b.id === 'equals'){ calculate(); return; }
+      if(v) append(v);
+      else if(f){
+        if(f === '!') append('!');
+        else if(f === '^') append('^');
+        else if(['pow2','pow3','inv','sqrt3'].includes(f)){
+          append(f==='pow2' ? '^2' : f==='pow3' ? '^3' : f==='inv' ? 'inv(' : 'sqrt3(');
+        } else {
+          append(f);
+        }
+      }
+    });
+
+    window.addEventListener('keydown', (ev)=>{
+      const k = ev.key;
+      if(k === 'Enter'){ ev.preventDefault(); calculate(); return; }
+      if(k === 'Backspace'){ ev.preventDefault(); delLast(); return; }
+      if(k === 'Delete'){ ev.preventDefault(); clearAll(); return; }
+      if(k === 'Escape'){ ev.preventDefault(); clearAll(); return; }
+      if(k === '^' || k === '%' || k === '(' || k === ')' || k === ',' ) { ev.preventDefault(); append(k); return; }
+      if(/^[0-9]$/.test(k) || k === '.' ){ ev.preventDefault(); append(k); return; }
+      if(k === '+' || k === '-' || k === '*' || k === '/' ){ ev.preventDefault(); append(k); return; }
+      if(/^[A-Za-z]$/.test(k)){
+        append(k);
+        return;
+      }
+    }, {passive:false});
+
+    const modeToggle = document.getElementById('modeToggle');
+    modeToggle.addEventListener('click', ()=>{
+      document.body.classList.toggle('dark');
+    });
+
+    updateDisplay();
+    setStatus('جاهز — اكتب أو اضغط الأزرار');
+  </script>
+</body>
+</html>`;
